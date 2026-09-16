@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tiketac</title>
+  <link rel="icon" href="tiketac.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F2F4F8;
+      --bg-raised: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #E8EBF0;
+      --bg-input: #F2F4F8;
+      --text: #13171A;
+      --text-secondary: #50565B;
+      --text-muted: #868D95;
+      --border: #D5D9E0;
+      --border-focus: #4361EE;
+      --accent: #4361EE;
+      --accent-hover: #3451DE;
+      --accent-dim: rgba(67, 97, 238, .08);
+      --danger: #F23845;
+      --danger-dim: rgba(242, 56, 69, .08);
+      --success: #16a34a;
+      --success-dim: rgba(22, 163, 74, .08);
+      --info: #4361EE;
+      --info-dim: rgba(67, 97, 238, .08);
+      --urgent: #F23845;
+      --high: #FF7D78;
+      --medium: #A373FF;
+      --low: #16a34a;
+      --radius: 10px;
+      --radius-lg: 14px;
+    }
+
+    .dark {
+      --bg: #06080A;
+      --bg-raised: #0C1014;
+      --bg-card: #101620;
+      --bg-hover: #182030;
+      --bg-input: #0A0E14;
+      --text: #F0F4FF;
+      --text-secondary: #8899CC;
+      --text-muted: #445580;
+      --border: #1A2540;
+      --border-focus: #5580FF;
+      --accent: #5580FF;
+      --accent-hover: #7799FF;
+      --accent-dim: rgba(85, 128, 255, .18);
+      --danger: #FF4455;
+      --danger-dim: rgba(255, 68, 85, .18);
+      --success: #33DD66;
+      --success-dim: rgba(51, 221, 102, .18);
+      --info: #5580FF;
+      --info-dim: rgba(85, 128, 255, .18);
+      --urgent: #FF4455;
+      --high: #FF9988;
+      --medium: #BB88FF;
+      --low: #33DD66;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    .app-row { display: flex; flex: 1; overflow: hidden; }
+
+    .sidebar {
+      width: 250px;
+      min-width: 250px;
+      background: var(--bg-raised);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 10px;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+
+    .sidebar-brand img { border-radius: 6px; filter: invert(1); }
+    .dark .sidebar-brand img { filter: none; }
+    .sidebar-brand h1 { font-size: 18px; font-weight: 700; }
+
+    .sidebar-section { margin-top: 14px; }
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+      padding: 0 12px 6px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 120ms;
+      user-select: none;
+    }
+
+    .sidebar-item:hover { background: var(--bg-hover); color: var(--text); }
+    .sidebar-item.active { background: var(--accent-dim); color: var(--accent); }
+    .sidebar-item .count {
+      margin-left: auto;
+      background: var(--bg-hover);
+      padding: 1px 7px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .sidebar-item.active .count { background: var(--accent); color: #fff; }
+
+    .sidebar-spacer { flex: 1; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 50;
+    }
+
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-raised);
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      flex: 1;
+      max-width: 400px;
+      transition: border 120ms;
+    }
+
+    .search-box:focus-within { border-color: var(--border-focus); }
+    .search-box svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+    .search-box input {
+      border: none;
+      background: none;
+      outline: none;
+      font-size: 13px;
+      width: 100%;
+      font-family: inherit;
+      color: var(--text);
+    }
+    .search-box input::placeholder { color: var(--text-muted); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 120ms;
+      white-space: nowrap;
+    }
+
+    .btn svg { width: 15px; height: 15px; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--bg-hover); color: var(--text); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-ghost { background: transparent; color: var(--text-secondary); padding: 6px 8px; }
+    .btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
+
+    .content { flex: 1; overflow-y: auto; padding: 24px; }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .page-header h2 { font-size: 20px; font-weight: 700; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .stat-card .label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .stat-card .value { font-size: 26px; font-weight: 700; }
+    .stat-card .value.open { color: var(--info); }
+    .stat-card .value.progress { color: var(--accent); }
+    .stat-card .value.resolved { color: var(--success); }
+    .stat-card .value.closed { color: var(--text-muted); }
+
+    .ticket-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .ticket-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 120ms;
+    }
+
+    .ticket-row:hover { border-color: var(--text-muted); }
+
+    .priority-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .priority-dot.urgent { background: var(--urgent); }
+    .priority-dot.high { background: var(--high); }
+    .priority-dot.medium { background: var(--medium); }
+    .priority-dot.low { background: var(--low); }
+
+    .ticket-info { flex: 1; min-width: 0; }
+    .ticket-title {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ticket-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 3px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .ticket-tags { display: flex; gap: 4px; flex-shrink: 0; }
+
+    .tag {
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+    }
+
+    .status-badge {
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .status-badge.open { background: var(--info-dim); color: var(--info); }
+    .status-badge.in_progress { background: var(--accent-dim); color: var(--accent); }
+    .status-badge.resolved { background: var(--success-dim); color: var(--success); }
+    .status-badge.closed { background: var(--bg-hover); color: var(--text-muted); }
+
+    .ticket-actions { opacity: 0; transition: opacity 120ms; }
+    .ticket-row:hover .ticket-actions { opacity: 1; }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      width: 480px;
+      max-width: 92vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 80px rgba(0,0,0,.4);
+      animation: modalIn 180ms ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(10px) scale(.98); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 0;
+    }
+
+    .modal-header h3 { font-size: 16px; font-weight: 700; }
+
+    .modal-body { padding: 18px 20px; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--text-secondary);
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--bg-input);
+      color: var(--text);
+      outline: none;
+      transition: border 120ms;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--border-focus); }
+    .form-group textarea { resize: vertical; min-height: 70px; }
+    .form-group select { cursor: pointer; }
+    .form-group select option { background: var(--bg-raised); }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 0 20px 18px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state svg { width: 40px; height: 40px; margin-bottom: 10px; opacity: .3; }
+    .empty-state p { font-size: 14px; }
+
+    .footer-bar {
+      text-align: center;
+      padding: 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      background: var(--bg-raised);
+    }
+    .footer-bar a { color: var(--accent); text-decoration: none; }
+
+    .settings-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      backdrop-filter: blur(4px);
+    }
+    .settings-overlay.open { display: flex; }
+
+    .settings-panel {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      width: 560px;
+      max-width: 92vw;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 80px rgba(0,0,0,.5);
+      animation: modalIn 180ms ease;
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+    .settings-header h3 { font-size: 16px; font-weight: 700; }
+
+    .settings-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .settings-tab {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 120ms;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: inherit;
+    }
+    .settings-tab:hover { color: var(--text); }
+    .settings-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .settings-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .settings-section { display: none; }
+    .settings-section.active { display: block; }
+
+    .settings-section h4 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row-info { flex: 1; }
+    .settings-row-label { font-size: 13px; font-weight: 600; }
+    .settings-row-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    .theme-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--bg-hover);
+      border-radius: 12px;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      transition: background 200ms;
+    }
+    .theme-switch.on { background: var(--accent); }
+    .theme-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 200ms;
+    }
+    .theme-switch.on::after { transform: translateX(20px); }
+
+    .api-url-input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: var(--bg-input);
+      color: var(--text);
+      outline: none;
+      margin-bottom: 12px;
+      transition: border 120ms;
+    }
+    .api-url-input:focus { border-color: var(--border-focus); }
+
+    .api-test-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .api-test-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 120ms;
+    }
+    .api-test-item:hover { border-color: var(--text-muted); }
+
+    .api-method {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'SF Mono', monospace;
+      min-width: 42px;
+      text-align: center;
+    }
+    .api-method.get { background: var(--info-dim); color: var(--info); }
+    .api-method.post { background: var(--success-dim); color: var(--success); }
+
+    .api-endpoint { font-size: 12px; font-family: 'SF Mono', monospace; color: var(--text); flex: 1; }
+    .api-result {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      min-width: 50px;
+      text-align: center;
+    }
+    .api-result.pending { background: var(--bg-hover); color: var(--text-muted); }
+    .api-result.ok { background: var(--success-dim); color: var(--success); }
+    .api-result.fail { background: var(--danger-dim); color: var(--danger); }
+    .api-result.loading { background: var(--accent-dim); color: var(--accent); }
+
+    .api-response-box {
+      margin-top: 12px;
+      padding: 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 11px;
+      font-family: 'SF Mono', monospace;
+      color: var(--text-secondary);
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      display: none;
+    }
+    .api-response-box.visible { display: block; }
+
+    .about-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .about-text strong { color: var(--text); }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        z-index: 60;
+        transition: left 200ms ease;
+        width: 260px;
+      }
+      .sidebar.open { left: 0; }
+      .sidebar-overlay.open { display: block; }
+
+      .topbar { padding: 12px 16px; }
+      .content { padding: 16px; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .stat-card { padding: 12px; }
+      .stat-card .value { font-size: 22px; }
+      .form-row { grid-template-columns: 1fr; }
+
+      .ticket-row { flex-wrap: wrap; gap: 8px; }
+      .ticket-tags { display: none; }
+      .ticket-actions { opacity: 1; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <div class="app-row">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <img src="tiketac.png" alt="tiketac" width="28" height="28" style="border-radius: 6px;" />
+        <h1><span style="color:#4361EE;">tike</span><span style="color:#F23845;">tac</span></h1>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Statuts</div>
+        <div class="sidebar-item active" data-filter="all" onclick="setFilter('all', this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Tous
+          <span class="count" id="count-all">0</span>
+        </div>
+        <div class="sidebar-item" data-filter="open" onclick="setFilter('open', this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+          Ouverts
+          <span class="count" id="count-open">0</span>
+        </div>
+        <div class="sidebar-item" data-filter="in_progress" onclick="setFilter('in_progress', this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+          En cours
+          <span class="count" id="count-in_progress">0</span>
+        </div>
+        <div class="sidebar-item" data-filter="resolved" onclick="setFilter('resolved', this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Résolus
+          <span class="count" id="count-resolved">0</span>
+        </div>
+        <div class="sidebar-item" data-filter="closed" onclick="setFilter('closed', this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          Fermés
+          <span class="count" id="count-closed">0</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Priorités</div>
+        <div class="sidebar-item" data-filter="urgent" onclick="setPriorityFilter('urgent', this)">
+          <span class="priority-dot urgent"></span> Urgent
+        </div>
+        <div class="sidebar-item" data-filter="high" onclick="setPriorityFilter('high', this)">
+          <span class="priority-dot high"></span> Haute
+        </div>
+        <div class="sidebar-item" data-filter="medium" onclick="setPriorityFilter('medium', this)">
+          <span class="priority-dot medium"></span> Moyenne
+        </div>
+        <div class="sidebar-item" data-filter="low" onclick="setPriorityFilter('low', this)">
+          <span class="priority-dot low"></span> Basse
+        </div>
+      </div>
+
+      <div class="sidebar-spacer"></div>
+
+      <div class="sidebar-item" onclick="openSettings()" style="color: var(--text-muted);">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Paramètres
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="topbar">
+        <button class="btn btn-ghost" onclick="openSidebar()" style="display:none;" id="hamburgerBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Rechercher..." id="searchInput" oninput="renderTickets()" />
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span class="label-text">Nouveau</span>
+        </button>
+      </div>
+
+      <div class="content">
+        <div class="page-header">
+          <h2 id="pageTitle">Tous les tickets</h2>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card"><div class="label">Ouverts</div><div class="value open" id="stat-open">0</div></div>
+          <div class="stat-card"><div class="label">En cours</div><div class="value progress" id="stat-progress">0</div></div>
+          <div class="stat-card"><div class="label">Résolus</div><div class="value resolved" id="stat-resolved">0</div></div>
+          <div class="stat-card"><div class="label">Fermés</div><div class="value closed" id="stat-closed">0</div></div>
+        </div>
+
+        <div class="ticket-list" id="ticketList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    Made by Yanis <span style="color:#F23845;">&#10084;</span>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Nouveau ticket</h3>
+        <button class="btn btn-ghost" onclick="closeModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="ticketId" />
+        <div class="form-group">
+          <label>Titre</label>
+          <input type="text" id="formTitle" placeholder="Résumé du problème..." />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="formDesc" placeholder="Détails..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Priorité</label>
+            <select id="formPriority">
+              <option value="low">Basse</option>
+              <option value="medium" selected>Moyenne</option>
+              <option value="high">Haute</option>
+              <option value="urgent">Urgente</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Statut</label>
+            <select id="formStatus">
+              <option value="open">Ouvert</option>
+              <option value="in_progress">En cours</option>
+              <option value="resolved">Résolu</option>
+              <option value="closed">Fermé</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Assigné à</label>
+          <input type="text" id="formAssignee" placeholder="Nom..." />
+        </div>
+        <div class="form-group">
+          <label>Tags (virgules)</label>
+          <input type="text" id="formTags" placeholder="bug, frontend..." />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+        <button class="btn btn-primary" onclick="saveTicket()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-overlay" id="settingsOverlay" onclick="closeSettingsOutside(event)">
+    <div class="settings-panel">
+      <div class="settings-header">
+        <h3>Paramètres</h3>
+        <button class="btn btn-ghost" onclick="closeSettings()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="settings-tabs">
+        <button class="settings-tab active" onclick="switchTab('general', this)">Général</button>
+        <button class="settings-tab" onclick="switchTab('api', this)">Tests API</button>
+        <button class="settings-tab" onclick="switchTab('about', this)">À propos</button>
+      </div>
+      <div class="settings-body">
+        <div class="settings-section active" id="tab-general">
+          <h4>Apparence</h4>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Thème sombre</div>
+              <div class="settings-row-desc">Basculer entre le mode sombre et clair</div>
+            </div>
+            <button class="theme-switch" id="themeSwitch" onclick="toggleTheme()"></button>
+          </div>
+          <h4 style="margin-top:18px;">Données</h4>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Charger les données par défaut</div>
+              <div class="settings-row-desc">Réinitialise avec 6 tickets de démonstration</div>
+            </div>
+            <button class="btn btn-primary" onclick="seedDemoData(); closeSettings();">Charger</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Effacer toutes les données</div>
+              <div class="settings-row-desc">Supprime définitivement tous les tickets</div>
+            </div>
+            <button class="btn btn-secondary" style="color:var(--danger);" onclick="clearAllData()">Effacer</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Exporter en JSON</div>
+              <div class="settings-row-desc">Télécharge tous les tickets en fichier .json</div>
+            </div>
+            <button class="btn btn-secondary" onclick="exportData()">Exporter</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Importer un fichier JSON</div>
+              <div class="settings-row-desc">Restaure des tickets depuis un fichier</div>
+            </div>
+            <label class="btn btn-secondary" style="cursor:pointer;">
+              Importer
+              <input type="file" accept=".json" onchange="importData(event)" style="display:none;" />
+            </label>
+          </div>
+          <h4 style="margin-top:18px;">Statistiques</h4>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Total des tickets</div>
+            </div>
+            <span style="font-size:13px;font-weight:700;color:var(--accent);" id="settingsTotal">0</span>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Taille du stockage</div>
+            </div>
+            <span style="font-size:13px;font-weight:600;color:var(--text-secondary);" id="settingsSize">0 Ko</span>
+          </div>
+        </div>
+
+        <div class="settings-section" id="tab-api">
+          <h4>URL de l'API</h4>
+          <input class="api-url-input" id="apiUrl" value="http://localhost:3000" placeholder="http://localhost:3000" />
+          <button class="btn btn-primary" onclick="runAllTests()" style="margin-bottom:16px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Lancer tous les tests
+          </button>
+          <div class="api-test-list" id="apiTestList">
+            <div class="api-test-item" onclick="runApiTest('root')">
+              <span class="api-method get">GET</span>
+              <span class="api-endpoint">/api/health</span>
+              <span class="api-result pending" id="result-root">...</span>
+            </div>
+            <div class="api-test-item" onclick="runApiTest('list')">
+              <span class="api-method get">GET</span>
+              <span class="api-endpoint">/api/tickets</span>
+              <span class="api-result pending" id="result-list">...</span>
+            </div>
+            <div class="api-test-item" onclick="runApiTest('stats')">
+              <span class="api-method get">GET</span>
+              <span class="api-endpoint">/api/tickets/stats</span>
+              <span class="api-result pending" id="result-stats">...</span>
+            </div>
+            <div class="api-test-item" onclick="runApiTest('create')">
+              <span class="api-method post">POST</span>
+              <span class="api-endpoint">/api/tickets</span>
+              <span class="api-result pending" id="result-create">...</span>
+            </div>
+          </div>
+          <div class="api-response-box" id="apiResponseBox"></div>
+        </div>
+
+        <div class="settings-section" id="tab-about">
+          <h4><span style="color:#4361EE;">tike</span><span style="color:#F23845;">tac</span></h4>
+          <p class="about-text">
+            Outil de ticketing léger pour le groupe Amplitude.
+          </p>
+          <br />
+          <p class="about-text">
+            <strong>Stack</strong><br />
+            TypeScript · Express · HTML/CSS/JS vanilla<br />
+            localStorage pour la persistence côté client
+          </p>
+          <br />
+          <p class="about-text">
+            <strong>Fonctionnalités</strong><br />
+            CRUD complet · Filtres par statut/priorité · Recherche<br />
+            Données de démo · Export/Import JSON · Tests API
+          </p>
+          <br />
+          <p class="about-text">
+            <strong>Auteur</strong><br />
+            Yanis · 2026
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'tiketac_tickets';
+    const THEME_KEY = 'tiketac_theme';
+    let currentFilter = 'all';
+    let currentPriorityFilter = null;
+
+    function getTickets() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    }
+
+    function setTickets(t) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(t));
+    }
+
+    function applyTheme() {
+      const dark = localStorage.getItem(THEME_KEY) === 'dark';
+      document.documentElement.classList.toggle('dark', dark);
+      const sw = document.getElementById('themeSwitch');
+      if (sw) sw.classList.toggle('on', dark);
+    }
+
+    function toggleTheme() {
+      const isDark = !document.documentElement.classList.contains('dark');
+      localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+      applyTheme();
+    }
+
+    function seedDemoData() {
+      const demos = [
+        { title: 'Bug: page de connexion', description: 'La page reste vide après chargement sur Chrome.', status: 'in_progress', priority: 'high', assignee: 'Alice', tags: ['bug', 'auth'] },
+        { title: 'Recherche par tags', description: 'Filtrer les tickets par tags personnalisés.', status: 'resolved', priority: 'medium', assignee: 'Bob', tags: ['feature'] },
+        { title: 'Doc API v2', description: 'Documenter les nouveaux endpoints.', status: 'closed', priority: 'low', assignee: '', tags: ['docs'] },
+        { title: 'Dashboard lent', description: 'Plus de 3s de chargement avec beaucoup de tickets.', status: 'open', priority: 'urgent', assignee: 'Charlie', tags: ['perf'] },
+        { title: 'Mode sombre', description: 'Thème sombre pour les utilisateurs.', status: 'open', priority: 'medium', assignee: 'Diana', tags: ['ui'] },
+        { title: 'Form inscription bug', description: 'Validation ne fonctionne pas sur Safari.', status: 'in_progress', priority: 'high', assignee: 'Alice', tags: ['bug', 'safari'] },
+      ];
+
+      const tickets = demos.map((d, i) => ({
+        id: crypto.randomUUID(),
+        ...d,
+        createdAt: new Date(Date.now() - i * 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+
+      setTickets(tickets);
+      renderAll();
+    }
+
+    function renderAll() {
+      updateStats();
+      renderTickets();
+    }
+
+    function updateStats() {
+      const tickets = getTickets();
+      const s = { open: 0, in_progress: 0, resolved: 0, closed: 0 };
+      tickets.forEach(t => { if (s[t.status] !== undefined) s[t.status]++; });
+
+      document.getElementById('stat-open').textContent = s.open;
+      document.getElementById('stat-progress').textContent = s.in_progress;
+      document.getElementById('stat-resolved').textContent = s.resolved;
+      document.getElementById('stat-closed').textContent = s.closed;
+      document.getElementById('count-all').textContent = tickets.length;
+      document.getElementById('count-open').textContent = s.open;
+      document.getElementById('count-in_progress').textContent = s.in_progress;
+      document.getElementById('count-resolved').textContent = s.resolved;
+      document.getElementById('count-closed').textContent = s.closed;
+    }
+
+    function renderTickets() {
+      let tickets = getTickets();
+      const q = document.getElementById('searchInput').value.toLowerCase();
+
+      if (currentFilter !== 'all') tickets = tickets.filter(t => t.status === currentFilter);
+      if (currentPriorityFilter) tickets = tickets.filter(t => t.priority === currentPriorityFilter);
+      if (q) tickets = tickets.filter(t =>
+        t.title.toLowerCase().includes(q) ||
+        t.description.toLowerCase().includes(q) ||
+        t.assignee?.toLowerCase().includes(q) ||
+        t.tags?.some(tag => tag.toLowerCase().includes(q))
+      );
+
+      tickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      const list = document.getElementById('ticketList');
+      const labels = { open: 'Ouvert', in_progress: 'En cours', resolved: 'Résolu', closed: 'Fermé' };
+
+      if (!tickets.length) {
+        list.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg><p>Aucun ticket</p></div>';
+        return;
+      }
+
+      list.innerHTML = tickets.map(t => `
+        <div class="ticket-row" onclick="openModal('${t.id}')">
+          <div class="priority-dot ${t.priority}"></div>
+          <div class="ticket-info">
+            <div class="ticket-title">${esc(t.title)}</div>
+            <div class="ticket-meta">
+              <span>${timeAgo(t.createdAt)}</span>
+              ${t.assignee ? `<span>· ${esc(t.assignee)}</span>` : ''}
+            </div>
+          </div>
+          <div class="ticket-tags">${(t.tags || []).map(tag => `<span class="tag">${esc(tag)}</span>`).join('')}</div>
+          <span class="status-badge ${t.status}">${labels[t.status]}</span>
+          <div class="ticket-actions">
+            <button class="btn btn-ghost" onclick="event.stopPropagation(); deleteTicket('${t.id}')" title="Supprimer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setFilter(filter, el) {
+      currentFilter = filter;
+      currentPriorityFilter = null;
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      const titles = { all: 'Tous les tickets', open: 'Ouverts', in_progress: 'En cours', resolved: 'Résolus', closed: 'Fermés' };
+      document.getElementById('pageTitle').textContent = titles[filter] || 'Tous les tickets';
+      renderTickets();
+      closeSidebar();
+    }
+
+    function setPriorityFilter(priority, el) {
+      currentPriorityFilter = currentPriorityFilter === priority ? null : priority;
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+      if (currentPriorityFilter) el.classList.add('active');
+      else document.querySelector('[data-filter="all"]').classList.add('active');
+      const titles = { urgent: 'Urgent', high: 'Haute', medium: 'Moyenne', low: 'Basse' };
+      document.getElementById('pageTitle').textContent = currentPriorityFilter ? `Priorité: ${titles[priority]}` : 'Tous les tickets';
+      renderTickets();
+      closeSidebar();
+    }
+
+    function openModal(id) {
+      const overlay = document.getElementById('modalOverlay');
+      if (id) {
+        const ticket = getTickets().find(t => t.id === id);
+        if (!ticket) return;
+        document.getElementById('modalTitle').textContent = 'Modifier';
+        document.getElementById('ticketId').value = ticket.id;
+        document.getElementById('formTitle').value = ticket.title;
+        document.getElementById('formDesc').value = ticket.description;
+        document.getElementById('formPriority').value = ticket.priority;
+        document.getElementById('formStatus').value = ticket.status;
+        document.getElementById('formAssignee').value = ticket.assignee || '';
+        document.getElementById('formTags').value = (ticket.tags || []).join(', ');
+      } else {
+        document.getElementById('modalTitle').textContent = 'Nouveau ticket';
+        document.getElementById('ticketId').value = '';
+        document.getElementById('formTitle').value = '';
+        document.getElementById('formDesc').value = '';
+        document.getElementById('formPriority').value = 'medium';
+        document.getElementById('formStatus').value = 'open';
+        document.getElementById('formAssignee').value = '';
+        document.getElementById('formTags').value = '';
+      }
+      overlay.classList.add('open');
+      setTimeout(() => document.getElementById('formTitle').focus(), 100);
+    }
+
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+    function closeModalOutside(e) { if (e.target === e.currentTarget) closeModal(); }
+
+    function saveTicket() {
+      const id = document.getElementById('ticketId').value;
+      const title = document.getElementById('formTitle').value.trim();
+      const description = document.getElementById('formDesc').value.trim();
+      const priority = document.getElementById('formPriority').value;
+      const status = document.getElementById('formStatus').value;
+      const assignee = document.getElementById('formAssignee').value.trim();
+      const tags = document.getElementById('formTags').value.split(',').map(t => t.trim()).filter(Boolean);
+
+      if (!title || !description) { alert('Titre et description requis.'); return; }
+
+      const tickets = getTickets();
+      const now = new Date().toISOString();
+
+      if (id) {
+        const idx = tickets.findIndex(t => t.id === id);
+        if (idx !== -1) tickets[idx] = { ...tickets[idx], title, description, priority, status, assignee, tags, updatedAt: now };
+      } else {
+        tickets.push({ id: crypto.randomUUID(), title, description, status, priority, assignee, tags, createdAt: now, updatedAt: now });
+      }
+
+      setTickets(tickets);
+      closeModal();
+      renderAll();
+    }
+
+    function deleteTicket(id) {
+      if (!confirm('Supprimer ?')) return;
+      setTickets(getTickets().filter(t => t.id !== id));
+      renderAll();
+    }
+
+    function openSidebar() {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('sidebarOverlay').classList.add('open');
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('open');
+    }
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function timeAgo(date) {
+      const diff = Date.now() - new Date(date).getTime();
+      const m = Math.floor(diff / 60000);
+      if (m < 1) return "à l'instant";
+      if (m < 60) return `${m}min`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `${h}h`;
+      return `${Math.floor(h / 24)}j`;
+    }
+
+    function openSettings() {
+      const total = getTickets().length;
+      const bytes = new Blob([localStorage.getItem(STORAGE_KEY) || '']).size;
+      document.getElementById('settingsTotal').textContent = total;
+      document.getElementById('settingsSize').textContent = bytes > 1024 ? `${(bytes / 1024).toFixed(1)} Ko` : `${bytes} o`;
+      document.getElementById('settingsOverlay').classList.add('open');
+      closeSidebar();
+    }
+
+    function closeSettings() { document.getElementById('settingsOverlay').classList.remove('open'); }
+    function closeSettingsOutside(e) { if (e.target === e.currentTarget) closeSettings(); }
+
+    function switchTab(tab, el) {
+      document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById(`tab-${tab}`).classList.add('active');
+    }
+
+    function clearAllData() {
+      if (!confirm('Tout supprimer ?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      renderAll();
+      closeSettings();
+    }
+
+    function exportData() {
+      const tickets = getTickets();
+      const blob = new Blob([JSON.stringify(tickets, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tiketac-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const tickets = JSON.parse(ev.target.result);
+          if (!Array.isArray(tickets)) throw new Error();
+          setTickets(tickets);
+          renderAll();
+          closeSettings();
+        } catch { alert('Fichier JSON invalide.'); }
+      };
+      reader.readAsText(file);
+    }
+
+    async function runApiTest(test) {
+      const el = document.getElementById(`result-${test}`);
+      const box = document.getElementById('apiResponseBox');
+
+      el.textContent = '...';
+      el.className = 'api-result loading';
+
+      const tickets = getTickets();
+      const s = { open: 0, in_progress: 0, resolved: 0, closed: 0 };
+      tickets.forEach(t => { if (s[t.status] !== undefined) s[t.status]++; });
+
+      const fakeResponses = {
+        root: { status: 'up', mode: 'static' },
+        list: { success: true, data: tickets, count: tickets.length },
+        stats: { success: true, data: { total: tickets.length, byStatus: s } },
+        create: { success: true, data: { id: crypto.randomUUID(), title: 'Test API', description: 'Créé via les tests', status: 'open', priority: 'low', tags: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } },
+      };
+
+      const fake = fakeResponses[test];
+      if (test === 'root') {
+        el.textContent = 'up (static)';
+        el.className = 'api-result ok';
+      } else {
+        el.textContent = '200 · 0ms';
+        el.className = 'api-result ok';
+      }
+      box.textContent = JSON.stringify(fake, null, 2);
+      box.classList.add('visible');
+
+      if (test === 'create') {
+        const current = getTickets();
+        current.push(fake.data);
+        setTickets(current);
+        renderAll();
+      }
+    }
+
+    function runAllTests() {
+      for (const t of ['root', 'list', 'stats', 'create']) runApiTest(t);
+    }
+
+    function handleResize() {
+      const hb = document.getElementById('hamburgerBtn');
+      if (window.innerWidth <= 768) hb.style.display = 'inline-flex';
+      else hb.style.display = 'none';
+    }
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    applyTheme();
+    renderAll();
+    if (!getTickets().length) seedDemoData();
+  </script>
+</body>
+</html>
